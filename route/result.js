@@ -6,6 +6,7 @@ const router = require("express").Router()
 
 router.post("/", async (req, res, next) => {
     const { year, month, resultList } = req.body;
+    console.log("resultList", resultList);
     console.log(year, month, resultList);
     function dateToMilliseconds(day, month, year) {
         const dateString = `${year}-${month}-${day}`;
@@ -23,7 +24,8 @@ router.post("/", async (req, res, next) => {
 
         const requiredKeys = [
             'day', 'delhiLuckyBazar', 'disawer', 'faridabad',
-            'gaziyabad', 'kolkataKing', 'gali', 'delhiBazar', 'shreeGanesh'
+            'gaziyabad', 'kolkataKing', 'gali', 'delhiBazar', 'shreeGanesh', 'luckpoti', 'sreeRam', 'dlb'
+
         ];
 
         const hasRequiredKeys = requiredKeys.every(key => key in resultList[0]);
@@ -63,11 +65,11 @@ router.get("/", async (req, res) => {
     let limit = parseInt(req.query.limit) || 10;
     let skip = (page - 1) * limit;
 
-    
+
     try {
         if (req.query.year && req.query.month) {
             const chart = await SattaKingRecordChartjs.findOne({ year: year, month: month });
-           
+
             res.json(chart);
         } else {
             const chart = await SattaKingRecordChartjs.find().sort({ updatedAt: -1 }).select('-statusHistory -Comment')
@@ -84,18 +86,48 @@ router.get("/", async (req, res) => {
 });
 
 
+router.get("/currentday", async (req, res) => {
+  try {
+    // Get today's date
+    const now = new Date();
+    const year = now.getFullYear().toString(); // "2025"
+    const month = now.getMonth() + 1; // 11 (since getMonth() returns 0–11)
+    const day = now.getDate(); // 8
+
+    // Find the record for this month and year
+    const record = await SattaKingRecordChartjs.findOne({
+      year,
+      month,
+      "resultList.day": day
+    });
+
+    if (!record) {
+      return res.status(404).json({ message: "No record found for today" });
+    }
+
+    // Extract today's result from resultList
+    const todayResult = record.resultList.find(r => r.day === day);
+
+    res.json(todayResult);
+  } catch (error) {
+    console.error("Error fetching current day data:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
 router.delete("/:id", async (req, res) => {
 
-   try {
+    try {
         await SattaKingRecordChartjs.findByIdAndDelete(req.params.id)
-    res.json("success Fully Deleted")
-   } catch (error) {
-    console.log(error);
-    
-   } 
+        res.json("success Fully Deleted")
+    } catch (error) {
+        console.log(error);
 
-    
-   
+    }
+
+
+
 });
 
 

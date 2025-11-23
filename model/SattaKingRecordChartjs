@@ -16,9 +16,9 @@ const SattaKingRecordChartjsSchema = new mongoose.Schema({
             gali: String,
             delhiBazar: String,
             shreeGanesh: String,
-            Luckpoti: String,
-            SreeRam: String,
-            DLB: String
+            luckpoti: String,
+            sreeRam: String,
+            dlb: String
         }
     ]
 
